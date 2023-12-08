@@ -2,56 +2,56 @@ import { fetchBreeds } from './cat-api';
 
 import { fetchCatByBreed } from './cat-api';
 
-import SlimSelect from 'slim-select';
+// import SlimSelect from 'slim-select';
 
-import '/node_modules/slim-select/dist/slimselect.css';
+// import '/node_modules/slim-select/dist/slimselect.css';
 
-import '/src/loader.css';
+// import '/src/loader.css';
 
-import Notiflix from 'notiflix';
+// import Notiflix from 'notiflix';
 
-import Notiflix from 'notiflix/dist/notiflix-aio-3.2.6.min.js';
+// import Notiflix from 'notiflix/dist/notiflix-aio-3.2.6.min.js';
 
-Notiflix.Notify.init({
-  width: '280px',
-  position: 'right-top', // 'right-top' - 'right-bottom' - 'left-top' - 'left-bottom' - 'center-top' - 'center-bottom' - 'center-center'
-  distance: '10px',
-  opacity: 1,
-  borderRadius: '5px',
-  rtl: false,
-  timeout: 3000,
-  messageMaxLength: 110,
-  backOverlay: false,
-  backOverlayColor: 'rgba(0,0,0,0.5)',
-  plainText: true,
-  showOnlyTheLastOne: false,
-  clickToClose: false,
-  pauseOnHover: true,
+// Notiflix.Notify.init({
+//   width: '280px',
+//   position: 'right-top', // 'right-top' - 'right-bottom' - 'left-top' - 'left-bottom' - 'center-top' - 'center-bottom' - 'center-center'
+//   distance: '10px',
+//   opacity: 1,
+//   borderRadius: '5px',
+//   rtl: false,
+//   timeout: 3000,
+//   messageMaxLength: 110,
+//   backOverlay: false,
+//   backOverlayColor: 'rgba(0,0,0,0.5)',
+//   plainText: true,
+//   showOnlyTheLastOne: false,
+//   clickToClose: false,
+//   pauseOnHover: true,
 
-  ID: 'NotiflixNotify',
-  className: 'notiflix-notify',
-  zindex: 4001,
-  fontFamily: 'Quicksand',
-  fontSize: '13px',
-  cssAnimation: true,
-  cssAnimationDuration: 400,
-  cssAnimationStyle: 'fade', // 'fade' - 'zoom' - 'from-right' - 'from-top' - 'from-bottom' - 'from-left'
-  closeButton: false,
-  useIcon: true,
-  useFontAwesome: false,
-  fontAwesomeIconStyle: 'basic', // 'basic' - 'shadow'
-  fontAwesomeIconSize: '34px',
+//   ID: 'NotiflixNotify',
+//   className: 'notiflix-notify',
+//   zindex: 4001,
+//   fontFamily: 'Quicksand',
+//   fontSize: '13px',
+//   cssAnimation: true,
+//   cssAnimationDuration: 400,
+//   cssAnimationStyle: 'fade', // 'fade' - 'zoom' - 'from-right' - 'from-top' - 'from-bottom' - 'from-left'
+//   closeButton: false,
+//   useIcon: true,
+//   useFontAwesome: false,
+//   fontAwesomeIconStyle: 'basic', // 'basic' - 'shadow'
+//   fontAwesomeIconSize: '34px',
 
-  failure: {
-    background: '#ff5549',
-    textColor: '#fff',
-    childClassName: 'notiflix-notify-failure',
-    notiflixIconColor: 'rgba(0,0,0,0.2)',
-    fontAwesomeClassName: 'fas fa-times-circle',
-    fontAwesomeIconColor: 'rgba(0,0,0,0.2)',
-    backOverlayColor: 'rgba(255,85,73,0.2)',
-  },
-});
+//   failure: {
+//     background: '#ff5549',
+//     textColor: '#fff',
+//     childClassName: 'notiflix-notify-failure',
+//     notiflixIconColor: 'rgba(0,0,0,0.2)',
+//     fontAwesomeClassName: 'fas fa-times-circle',
+//     fontAwesomeIconColor: 'rgba(0,0,0,0.2)',
+//     backOverlayColor: 'rgba(255,85,73,0.2)',
+//   },
+// });
 
 const select = document.querySelector('.breed-select');
 const div = document.querySelector('.cat-info');
@@ -59,79 +59,136 @@ const div = document.querySelector('.cat-info');
 const loader = document.querySelector('.loader');
 const errorMessage = document.querySelector('.error');
 
-loader.addEventListener('click', onLoaderVisible);
+const axios = require('axios').default;
 
-loader.style.display = 'none';
-errorMessage.style.display = 'none';
-div.style.width = '450px';
+const BASE_URL = 'https://pixabay.com/api/';
+const API_KEY = '41079066-0341c17d8bd684537c8a66e3e';
 
-fetchBreeds()
-  .then(function (data) {
-    select.insertAdjacentHTML('beforeend', createMarkup(data));
+let page = 1;
 
-    new SlimSelect({
-      select: '.breed-select',
-    });
-  })
-  .catch(function () {
-    select.style.display = 'none';
-    loader.style.display = 'none';
-    div.style.display = 'none';
-    Notiflix.Notify.failure(
-      'Oops! Something went wrong! Try reloading the page!'
-    );
-  });
+// const queryParams = {
+//   key: API_KEY,
+//   q: `${searchCat}`,
+//   image_type: 'photo',
+//   orientation: 'horizontal',
+//   safesearch: true,
+//   page: page,
+//   per_page: 40,
+// };
 
-function createMarkup(arr) {
-  return arr
-    .map(({ id, name }) => `<option value="${id}">${name}</option>`)
-    .join('');
-}
+const searchForm = document.querySelector('.search-form');
+const btnSubmit = document.querySelector('button');
+const loadMore = document.querySelector('.load-more');
+const divGallery = document.querySelector('.gallery');
 
-select.addEventListener('change', () => {
-  const selectedCat = select.value;
-  ClearPage();
-  onLoaderVisible();
-  fetchCatByBreed(selectedCat)
-    .then(function (info) {
-      div.insertAdjacentHTML('beforeend', createMarkupCat(info));
-      onLoaderHidden();
+searchForm.addEventListener('submit', handlerSearch);
+
+function handlerSearch(e) {
+  e.preventDefault();
+  const searchCat = e.currentTarget.searchQuery.value;
+  console.dir(searchCat);
+
+  const queryParams = {
+    key: API_KEY,
+    q: `${searchCat}`,
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    page: page,
+    per_page: 5,
+  };
+  axios
+    .get(BASE_URL, { params: queryParams })
+    .then(response => {
+      console.log(response.data);
     })
-    .catch(function () {
-      select.style.display = 'none';
-      loader.style.display = 'none';
-      div.style.display = 'none';
-      Notiflix.Notify.failure(
-        'Oops! Something went wrong! Try reloading the page!'
+    .catch(error => {
+      console.log(error);
+      console.log(
+        'Sorry, there are no images matching your search query. Please try again.'
       );
     });
-});
-
-function createMarkupCat(data) {
-  const cat = data[0].breeds[0];
-
-  const { name, description, temperament } = cat;
-
-  return `
-  <img src="${data[0].url}" alt="${name}" width="450">
-  <h2>${name}</h2>
-  <p>${description}</p>
-  <p>Temperament: ${temperament}</p>
-  `;
 }
+// btnSubmit.addEventListener('click', handlerSubmit);
+loadMore.addEventListener('click', handlerLoadMore);
 
-function onLoaderVisible() {
-  select.style.display = 'none';
-  loader.style.display = 'block';
-  loader.textContent = '';
-  div.style.display = 'none';
-}
+function handlerLoadMore() {}
 
-function onLoaderHidden() {
-  loader.style.display = 'none';
-  div.style.display = 'block';
-}
+// ----------------------------------------------------------------------------------
 
-function ClearPage() {
-  div.innerHTML = '';
-}
+// loader.addEventListener('click', onLoaderVisible);
+
+// loader.style.display = 'none';
+// errorMessage.style.display = 'none';
+// div.style.width = '450px';
+
+// fetchBreeds()
+//   .then(function (data) {
+//     select.insertAdjacentHTML('beforeend', createMarkup(data));
+
+//     new SlimSelect({
+//       select: '.breed-select',
+//     });
+//   })
+//   .catch(function () {
+//     select.style.display = 'none';
+//     loader.style.display = 'none';
+//     div.style.display = 'none';
+//     Notiflix.Notify.failure(
+//       'Oops! Something went wrong! Try reloading the page!'
+//     );
+//   });
+
+// function createMarkup(arr) {
+//   return arr
+//     .map(({ id, name }) => `<option value="${id}">${name}</option>`)
+//     .join('');
+// }
+
+// select.addEventListener('change', () => {
+//   const selectedCat = select.value;
+//   ClearPage();
+//   onLoaderVisible();
+//   fetchCatByBreed(selectedCat)
+//     .then(function (info) {
+//       div.insertAdjacentHTML('beforeend', createMarkupCat(info));
+//       onLoaderHidden();
+//     })
+//     .catch(function () {
+//       select.style.display = 'none';
+//       loader.style.display = 'none';
+//       div.style.display = 'none';
+//       Notiflix.Notify.failure(
+//         'Oops! Something went wrong! Try reloading the page!'
+//       );
+//     });
+// });
+
+// function createMarkupCat(data) {
+//   const cat = data[0].breeds[0];
+
+//   const { name, description, temperament } = cat;
+
+//   return `
+//   <img src="${data[0].url}" alt="${name}" width="450">
+//   <h2>${name}</h2>
+//   <p>${description}</p>
+//   <p>Temperament: ${temperament}</p>
+//   `;
+// }
+
+// function onLoaderVisible() {
+//   select.style.display = 'none';
+//   loader.style.display = 'block';
+//   loader.textContent = '';
+//   div.style.display = 'none';
+// }
+
+// function onLoaderHidden() {
+//   loader.style.display = 'none';
+//   div.style.display = 'block';
+// }
+
+// function ClearPage() {
+//   div.innerHTML = '';
+// }
