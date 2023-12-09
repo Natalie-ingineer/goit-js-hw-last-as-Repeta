@@ -63,6 +63,8 @@ loadMore.addEventListener('click', onLoadMore);
 
 function handlerSearch(e) {
   e.preventDefault();
+
+  clearDivContainer();
   newsApiService.animal = e.currentTarget.searchQuery.value;
 
   newsApiService.resetPage();
@@ -110,6 +112,10 @@ function renderMarkup(hits) {
 
 function createMarkupAnimals(hits) {
   divGallery.insertAdjacentHTML('beforeend', renderMarkup(hits));
+}
+
+function clearDivContainer() {
+  divGallery.innerHTML = '';
 }
 
 // ----------------------------------------------------------------------------------
