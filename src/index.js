@@ -64,11 +64,13 @@ loadMore.addEventListener('click', onLoadMore);
 function handlerSearch(e) {
   e.preventDefault();
 
-  clearDivContainer();
   newsApiService.animal = e.currentTarget.searchQuery.value;
 
   newsApiService.resetPage();
-  newsApiService.fetchArticles().then(createMarkupAnimals);
+  newsApiService.fetchArticles().then(hits => {
+    clearDivContainer();
+    createMarkupAnimals(hits);
+  });
 }
 // btnSubmit.addEventListener('click', handlerSubmit);
 
