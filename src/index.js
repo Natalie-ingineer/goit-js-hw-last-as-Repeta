@@ -1,6 +1,6 @@
-import { fetchBreeds } from './cat-api';
+import NewsApiService from './animal-api';
 
-import { fetchCatByBreed } from './cat-api';
+import { fetchCatByBreed } from './animal-api';
 
 // import SlimSelect from 'slim-select';
 
@@ -53,18 +53,18 @@ import { fetchCatByBreed } from './cat-api';
 //   },
 // });
 
-const select = document.querySelector('.breed-select');
-const div = document.querySelector('.cat-info');
+// const select = document.querySelector('.breed-select');
+// const div = document.querySelector('.cat-info');
 
-const loader = document.querySelector('.loader');
-const errorMessage = document.querySelector('.error');
+// const loader = document.querySelector('.loader');
+// const errorMessage = document.querySelector('.error');
 
-const axios = require('axios').default;
+// const newsApiService = new NewsApiService();
 
-const BASE_URL = 'https://pixabay.com/api/';
-const API_KEY = '41079066-0341c17d8bd684537c8a66e3e';
+// const axios = require('axios').default;
 
-let page = 1;
+// const BASE_URL = 'https://pixabay.com/api/';
+// const API_KEY = '41079066-0341c17d8bd684537c8a66e3e';
 
 // const queryParams = {
 //   key: API_KEY,
@@ -81,38 +81,23 @@ const btnSubmit = document.querySelector('button');
 const loadMore = document.querySelector('.load-more');
 const divGallery = document.querySelector('.gallery');
 
+const newsApiService = new NewsApiService();
+
 searchForm.addEventListener('submit', handlerSearch);
+loadMore.addEventListener('click', onLoadMore);
 
 function handlerSearch(e) {
   e.preventDefault();
-  const searchCat = e.currentTarget.searchQuery.value;
-  console.dir(searchCat);
+  newsApiService.animal = e.currentTarget.searchQuery.value;
 
-  const queryParams = {
-    key: API_KEY,
-    q: `${searchCat}`,
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    page: page,
-    per_page: 5,
-  };
-  axios
-    .get(BASE_URL, { params: queryParams })
-    .then(response => {
-      console.log(response.data);
-    })
-    .catch(error => {
-      console.log(error);
-      console.log(
-        'Sorry, there are no images matching your search query. Please try again.'
-      );
-    });
+  newsApiService.resetPage();
+  newsApiService.fetchArticles().then(hits => console.log(hits));
 }
 // btnSubmit.addEventListener('click', handlerSubmit);
-loadMore.addEventListener('click', handlerLoadMore);
 
-function handlerLoadMore() {}
+function onLoadMore() {
+  newsApiService.fetchArticles();
+}
 
 // ----------------------------------------------------------------------------------
 
