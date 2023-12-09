@@ -7,9 +7,32 @@ export default class NewsApiService {
   constructor() {
     this.searchAnimal = '';
     this.page = 1;
+    this.per_page = 40;
   }
 
-  fetchArticles() {
+  fetchPegs() {
+    const option = {
+      key: API_KEY,
+      safesearch: true,
+      page: `${this.page}`,
+      per_page: `${this.per_page}`,
+    };
+    return axios
+      .get(BASE_URL, { params: option })
+      .then(response => {
+        // console.log(response.data.hits);
+        this.incrementPage();
+        return response.data.totalHits;
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(
+          'Sorry, there are no images matching your search query. Please try again.'
+        );
+      });
+  }
+
+  fetchHits() {
     const queryParams = {
       key: API_KEY,
       q: `${this.searchAnimal}`,
@@ -17,7 +40,7 @@ export default class NewsApiService {
       orientation: 'horizontal',
       safesearch: true,
       page: `${this.page}`,
-      per_page: 40,
+      per_page: `${this.per_page}`,
     };
     return axios
       .get(BASE_URL, { params: queryParams })
