@@ -71,7 +71,7 @@ function handlerSearch(e) {
 // btnSubmit.addEventListener('click', handlerSubmit);
 
 function onLoadMore() {
-  newsApiService.fetchArticles();
+  newsApiService.fetchArticles().then(createMarkupAnimals);
 }
 
 function renderMarkup(hits) {
