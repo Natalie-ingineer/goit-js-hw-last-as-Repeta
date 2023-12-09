@@ -1,7 +1,5 @@
 import NewsApiService from './animal-api';
 
-import { fetchCatByBreed } from './animal-api';
-
 // import SlimSelect from 'slim-select';
 
 // import '/node_modules/slim-select/dist/slimselect.css';
@@ -53,29 +51,6 @@ import { fetchCatByBreed } from './animal-api';
 //   },
 // });
 
-// const select = document.querySelector('.breed-select');
-// const div = document.querySelector('.cat-info');
-
-// const loader = document.querySelector('.loader');
-// const errorMessage = document.querySelector('.error');
-
-// const newsApiService = new NewsApiService();
-
-// const axios = require('axios').default;
-
-// const BASE_URL = 'https://pixabay.com/api/';
-// const API_KEY = '41079066-0341c17d8bd684537c8a66e3e';
-
-// const queryParams = {
-//   key: API_KEY,
-//   q: `${searchCat}`,
-//   image_type: 'photo',
-//   orientation: 'horizontal',
-//   safesearch: true,
-//   page: page,
-//   per_page: 40,
-// };
-
 const searchForm = document.querySelector('.search-form');
 const btnSubmit = document.querySelector('button');
 const loadMore = document.querySelector('.load-more');
@@ -91,7 +66,7 @@ function handlerSearch(e) {
   newsApiService.animal = e.currentTarget.searchQuery.value;
 
   newsApiService.resetPage();
-  newsApiService.fetchArticles().then(hits => console.log(hits));
+  newsApiService.fetchArticles().then(createMarkupAnimals);
 }
 // btnSubmit.addEventListener('click', handlerSubmit);
 
@@ -99,55 +74,45 @@ function onLoadMore() {
   newsApiService.fetchArticles();
 }
 
+function renderMarkup(hits) {
+  // const animalHits = hits[0];
+
+  return hits
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => `<div class="photo-card">
+    <img src="${webformatURL}" alt="${tags}" width = "300" loading="lazy" />
+    <div class="info">
+      <p class="info-item">
+        <b>Likes'${likes}'</b>
+      </p>
+      <p class="info-item">
+        <b>Views'${views}'</b>
+      </p>
+      <p class="info-item">
+        <b>Comments'${comments}'</b>
+      </p>
+      <p class="info-item">
+        <b>Downloads'${downloads}'</b>
+      </p>
+    </div>
+  </div>`
+    )
+    .join('');
+}
+
+function createMarkupAnimals(hits) {
+  divGallery.insertAdjacentHTML('beforeend', renderMarkup(hits));
+}
+
 // ----------------------------------------------------------------------------------
-
-// loader.addEventListener('click', onLoaderVisible);
-
-// loader.style.display = 'none';
-// errorMessage.style.display = 'none';
-// div.style.width = '450px';
-
-// fetchBreeds()
-//   .then(function (data) {
-//     select.insertAdjacentHTML('beforeend', createMarkup(data));
-
-//     new SlimSelect({
-//       select: '.breed-select',
-//     });
-//   })
-//   .catch(function () {
-//     select.style.display = 'none';
-//     loader.style.display = 'none';
-//     div.style.display = 'none';
-//     Notiflix.Notify.failure(
-//       'Oops! Something went wrong! Try reloading the page!'
-//     );
-//   });
-
-// function createMarkup(arr) {
-//   return arr
-//     .map(({ id, name }) => `<option value="${id}">${name}</option>`)
-//     .join('');
-// }
-
-// select.addEventListener('change', () => {
-//   const selectedCat = select.value;
-//   ClearPage();
-//   onLoaderVisible();
-//   fetchCatByBreed(selectedCat)
-//     .then(function (info) {
-//       div.insertAdjacentHTML('beforeend', createMarkupCat(info));
-//       onLoaderHidden();
-//     })
-//     .catch(function () {
-//       select.style.display = 'none';
-//       loader.style.display = 'none';
-//       div.style.display = 'none';
-//       Notiflix.Notify.failure(
-//         'Oops! Something went wrong! Try reloading the page!'
-//       );
-//     });
-// });
 
 // function createMarkupCat(data) {
 //   const cat = data[0].breeds[0];
@@ -172,8 +137,4 @@ function onLoadMore() {
 // function onLoaderHidden() {
 //   loader.style.display = 'none';
 //   div.style.display = 'block';
-// }
-
-// function ClearPage() {
-//   div.innerHTML = '';
 // }
