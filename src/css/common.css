@@ -17,24 +17,22 @@ img {
   height: auto;
 }
 
-.card {
+.photo-card {
   width: 288px;
+  margin: 10px;
 }
 
-.card-text {
+.info-item {
   margin-top: 0;
   margin-bottom: 10px;
+  font-size: 10px;
 }
 
-.card-img-top {
+.info {
   display: flex;
   justify-content: center;
 }
 
 .search-form {
   padding: 10px;
-}
-
-.card {
-  margin: 10px;
 }
